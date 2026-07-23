@@ -8,7 +8,7 @@ The tool takes:
 - `timeoutSeconds`: timeout in seconds
 
 It runs:
-- `docker run --rm --network bridge <image> sh -lc <code>`
+- `docker run --rm --network bridge <image> sh -c <code>`
 
 And returns JSON text containing:
 - `stdout`

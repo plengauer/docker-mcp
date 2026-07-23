@@ -1,12 +1,33 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { execFile } from "node:child_process";
 import { z } from "zod";
-import { runDockerShell } from "./dockerRunner.js";
 
 const server = new McpServer({
   name: "docker-mcp",
-  version: "0.1.0"
+  version: "0.0.0"
 });
+
+async function runDockerShell({ image, code, timeoutSeconds }, execFileImpl = execFile) {
+  const args = ["run", "--rm", "--network", "bridge", image, "sh", "-c", code];
+
+  return new Promise((resolve) => {
+    execFileImpl("docker", args, { timeout: timeoutSeconds * 1000, maxBuffer: 10 * 1024 * 1024 }, (error, stdout = "", stderr = "") => {
+      if (!error) {
+        resolve({ stdout, stderr, exitCode: 0, timedOut: false });
+        return;
+      }
+
+      const timedOut = Boolean(error.killed && error.signal === "SIGTERM");
+      resolve({
+        stdout,
+        stderr: timedOut && !stderr ? `Timed out after ${timeoutSeconds} seconds` : stderr,
+        exitCode: typeof error.code === "number" ? error.code : 1,
+        timedOut
+      });
+    });
+  });
+}
 
 server.registerTool(
   "run_in_docker",
