@@ -36,7 +36,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - id: package_version
-        run: echo "version=v$(node -p \"require('./package.json').version\")" >> "$GITHUB_OUTPUT"
+        run: printf 'version=v%s\n' "$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
       - uses: docker/build-push-action@v6
         with:
           context: .
