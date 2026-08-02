@@ -11,6 +11,7 @@ on:
       - Copilot
       - Copilot cloud agent
       - Copilot code review
+      - Copilot setup steps
       - OpenAI Codex
       - Recompile Agentic Workflows
       - Renovate
